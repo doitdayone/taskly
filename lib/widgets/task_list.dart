@@ -28,11 +28,12 @@ class TaskList extends StatelessWidget {
             color: Colors.red,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),
-            child: const Icon(Icons.delete, color: Colors.white),
+            child: const Icon(Icons.delete, color: Colors.lime),
           ),
           direction: DismissDirection.endToStart,
           onDismissed: (direction) => onDelete(task),
           child: ListTile(
+            hoverColor: Colors.red[100],
             title: Text(
               task.name,
               style: TextStyle(
@@ -44,6 +45,11 @@ class TaskList extends StatelessWidget {
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             trailing: Checkbox(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              side: BorderSide(color: Colors.red),
+              checkColor: Colors.limeAccent,
               value: task.done,
               activeColor: Colors.red,
               onChanged: (val) => onToggle(task),

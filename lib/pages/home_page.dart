@@ -118,6 +118,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
+            color: Colors.white,
             onPressed: _showDeleteAllDialog,
           ),
         ],
