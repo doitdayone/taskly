@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/task.dart';
@@ -23,6 +25,26 @@ Future<void> main() async {
 
   // 3. Create Repository
   final repository = TaskRepository(taskBox, Supabase.instance.client);
+
+  // 4. Configure Window for Linux
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+    await windowManager.ensureInitialized();
+
+    // 3:4 aspect ratio, width ~450 (approx 1/4 of 1920)
+    // 450 * 4 / 3 = 600
+    WindowOptions windowOptions = const WindowOptions(
+      size: Size(450, 600),
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.normal,
+    );
+
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
   runApp(MyApp(repository: repository, taskBox: taskBox));
 }
