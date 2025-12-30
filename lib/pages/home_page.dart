@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import '../models/task.dart';
 import '../repositories/task_repository.dart';
+import '../widgets/task_list.dart';
 
 class HomePage extends StatefulWidget {
   final TaskRepository repository;
@@ -52,6 +52,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showDeleteAllDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete All?'),
+        content: const Text('Are you sure you want to delete all tasks?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              widget.repository.deleteAllTasks();
+              Navigator.pop(ctx);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,33 +88,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Delete All?'),
-                  content: const Text(
-                    'Are you sure you want to delete all tasks?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        widget.repository.deleteAllTasks();
-                        Navigator.pop(ctx);
-                      },
-                      child: const Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+            onPressed: _showDeleteAllDialog,
           ),
         ],
       ),
@@ -106,47 +103,16 @@ class _HomePageState extends State<HomePage> {
           final tasks = box.values.toList()
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-          return ListView.builder(
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return Dismissible(
-                key: Key(task.id),
-                background: Container(
-                  color: Colors.red,
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  child: const Icon(Icons.delete, color: Colors.white),
-                ),
-                direction: DismissDirection.endToStart,
-                onDismissed: (direction) {
-                  widget.repository.deleteTask(task);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${task.name} deleted')),
-                  );
-                },
-                child: ListTile(
-                  title: Text(
-                    task.name,
-                    style: TextStyle(
-                      decoration: task.done ? TextDecoration.lineThrough : null,
-                    ),
-                  ),
-                  subtitle: Text(
-                    DateFormat(
-                      'yyyy-MM-dd HH:mm:ss.SSS',
-                    ).format(task.createdAt),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  trailing: Checkbox(
-                    value: task.done,
-                    activeColor: Colors.red,
-                    onChanged: (val) {
-                      widget.repository.toggleTask(task);
-                    },
-                  ),
-                ),
-              );
+          return TaskList(
+            tasks: tasks,
+            onDelete: (task) {
+              widget.repository.deleteTask(task);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('${task.name} deleted')));
+            },
+            onToggle: (task) {
+              widget.repository.toggleTask(task);
             },
           );
         },
