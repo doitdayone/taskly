@@ -117,6 +117,21 @@ class TaskRepository {
     await _box.put(task.id, task.copyWith(syncStatus: 'synced'));
   }
 
+  Future<void> updateTask(Task task, String newName) async {
+    final updated = task.copyWith(
+      name: newName,
+      updatedAt: DateTime.now(),
+      syncStatus: 'pending_update',
+    );
+    await _box.put(updated.id, updated);
+
+    try {
+      await _updateApiTask(updated);
+    } catch (e) {
+      debugPrint('Update Task Error: $e');
+    }
+  }
+
   Future<void> deleteTask(Task task) async {
     // Backup for rollback
     final backup = task;

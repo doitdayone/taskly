@@ -6,12 +6,14 @@ class TaskList extends StatelessWidget {
   final List<Task> tasks;
   final Function(Task) onDelete;
   final Function(Task) onToggle;
+  final Function(Task) onEdit;
 
   const TaskList({
     super.key,
     required this.tasks,
     required this.onDelete,
     required this.onToggle,
+    required this.onEdit,
   });
 
   @override
@@ -46,6 +48,7 @@ class TaskList extends StatelessWidget {
               activeColor: Colors.red,
               onChanged: (val) => onToggle(task),
             ),
+            onLongPress: () => onEdit(task),
           ),
         );
       },

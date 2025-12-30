@@ -75,6 +75,36 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showEditTaskDialog(Task task) {
+    final controller = TextEditingController(text: task.name);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Task', style: TextStyle(color: Colors.red)),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Task name'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                widget.repository.updateTask(task, controller.text);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,6 +143,9 @@ class _HomePageState extends State<HomePage> {
             },
             onToggle: (task) {
               widget.repository.toggleTask(task);
+            },
+            onEdit: (task) {
+              _showEditTaskDialog(task);
             },
           );
         },
